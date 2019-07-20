@@ -14,8 +14,8 @@ import Foundation
 class ViewController: NSViewController {
 
     let myProtocol = "afp://"
-    let myServer = "10.0.10.4"
-    let shareName = "Dropbox (SignUpGenius)"
+    let myServer = "www.starplayrx.com"
+    let shareName = "SkyDrive"
     
     let userDefaults = UserDefaults.standard
     
@@ -37,14 +37,14 @@ class ViewController: NSViewController {
         userDefaults.setValue(myPassword, forKey: "Password")
         userDefaults.setValue(changePassword.stringValue, forKey: "changePassword")
         
-        if shouldChangePassword == 1 {
+        if shouldChangePassword.rawValue == 1 {
             //change password is only available via afp protocol
             let myURL = "afp://" + myServer + "/" + shareName
-            asyncMountShare(myURL, shareName: shareName, userName: myUserName, password: "temp", shouldChangePassword: shouldChangePassword)
+            asyncMountShare(myURL, shareName: shareName, userName: myUserName, password: "temp", shouldChangePassword: shouldChangePassword.rawValue)
            // myStatus.stringValue = "In the popup window, click the 'Change Password' button on the lower left corner."
         } else {
             let myURL = myProtocol + myServer + "/" + shareName
-            asyncMountShare(myURL, shareName: shareName, userName: myUserName, password: myPassword, shouldChangePassword: shouldChangePassword)
+            asyncMountShare(myURL, shareName: shareName, userName: myUserName, password: myPassword, shouldChangePassword: shouldChangePassword.rawValue)
            // myStatus.stringValue = "Connecting..."
         }
         
@@ -166,7 +166,7 @@ class ViewController: NSViewController {
         }
         
         if let myChangePassword = userDefaults.string(forKey: "changePassword") {
-            changePassword.state = Int(myChangePassword)!
+            changePassword.state = convertToNSControlStateValue(Int(myChangePassword)!)
             
         }
         
@@ -243,7 +243,18 @@ class ViewController: NSViewController {
             
        // NetFSMountURLAsync(shareAddress as CFURL!, nil, userName, password, openOptions, mount_options, &requestID, queue, mount_report)
         
+        NetFSMountURLAsync(
+            shareAddress as CFURL, nil, userName as NSString,
+            password as NSString, openOptions, mount_options,
+            &requestID,queue)
+        {(myStat:Int32?,  requestID:AsyncRequestID?,  myMount:CFArray?) -> Void in
+            print("mounted: \(String(describing: myStat)) - \(String(describing: myMount))")
+            self.myTest(myStat!,requestID:requestID!,myMount:myMount!,shareName:shareName)
+        }
         
+        
+        
+        /* This only works in Swift 3 :
         NetFSMountURLAsync(shareAddress as CFURL, nil, userName as NSString, password as NSString, openOptions, mount_options, &requestID, queue,
         {(NetFSMountURLBlock: (myStat:Int32, requestID:AsyncRequestID?, mountpoints:CFArray?)) -> Void in
              print("mounted: \(stat) - \(NetFSMountURLBlock)")
@@ -251,9 +262,14 @@ class ViewController: NSViewController {
             let requestID = NetFSMountURLBlock.requestID
             let myMount = NetFSMountURLBlock.mountpoints;
             self.myTest(myStat,requestID:requestID!,myMount:myMount,shareName:shareName)
-           })
+           })*/
 
 }
 
 }
 
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToNSControlStateValue(_ input: Int) -> NSControl.StateValue {
+	return NSControl.StateValue(rawValue: input)
+}
