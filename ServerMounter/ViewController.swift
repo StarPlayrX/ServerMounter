@@ -244,7 +244,7 @@ class ViewController: NSViewController {
        // NetFSMountURLAsync(shareAddress as CFURL!, nil, userName, password, openOptions, mount_options, &requestID, queue, mount_report)
         
         
-        NetFSMountURLAsync(shareAddress as CFURL!, nil, userName as NSString, password as NSString, openOptions, mount_options, &requestID, queue,
+        NetFSMountURLAsync(shareAddress as CFURL, nil, userName as NSString, password as NSString, openOptions, mount_options, &requestID, queue,
         {(NetFSMountURLBlock: (myStat:Int32, requestID:AsyncRequestID?, mountpoints:CFArray?)) -> Void in
              print("mounted: \(stat) - \(NetFSMountURLBlock)")
             let myStat = NetFSMountURLBlock.myStat
